@@ -1,6 +1,10 @@
-===================
+############
+Installation
+############
+
+=======================
 Download the JTE Plugin
-===================
+=======================
 
 Download the code repository for the Jenkins Templating Engine by running: 
 
