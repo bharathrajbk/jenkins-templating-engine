@@ -117,9 +117,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../Plugin_Development/template_primitives.html">Template Primitives</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../Custom_Primitives/index.html">Adding a Custom Primitive</a><ul class="simple">
-</ul>
-</li>
 </ul>
 
             
@@ -194,8 +191,128 @@
 
 
 
-<div class="section" id="default-step-implementation">
-<h1>Default Step Implementation<a class="headerlink" href="#default-step-implementation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h1>Default Step Implementation<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>The JTE default step implementation allows you to generically define pipeline steps
+in a <code class="docutils literal"><span class="pre">steps</span></code> block in your configuration file.</p>
+<p>This can be used for simple step implementations that can run from a container image
+by executing a shell command or script. Optionally, artifacts generated during the
+step execution can be stashed for later retrieval.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If the default step implementation is called for a step but that step has not
+been defined in the <code class="docutils literal"><span class="pre">steps</span></code> block then nothing will happen.</p>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils" id="id4">
+<caption><span class="caption-text">Configuration Options</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field</th>
+<th class="head">Description</th>
+<th class="head">Default Value</th>
+<th class="head">Required?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>stage</td>
+<td>Display name for this step.</td>
+<td>&lt;step_name&gt;</td>
+<td>false</td>
+</tr>
+<tr class="row-odd"><td>image</td>
+<td>Container image to run the step within.</td>
+<td>&#160;</td>
+<td>true</td>
+</tr>
+<tr class="row-even"><td>command</td>
+<td>The shell command to run inside the step container image</td>
+<td>&#160;</td>
+<td>if script is not set</td>
+</tr>
+<tr class="row-odd"><td>script</td>
+<td>The path to a shell script to execute</td>
+<td>&#160;</td>
+<td>if command is not set</td>
+</tr>
+<tr class="row-even"><td>stash.name</td>
+<td>The ID of the resultant stash of files from the step</td>
+<td>&#160;</td>
+<td>required if a stash is to be used</td>
+</tr>
+<tr class="row-odd"><td>stash.includes</td>
+<td>The files to preserve.</td>
+<td><a href="#id2"><span class="problematic" id="id3">**</span></a></td>
+<td>false</td>
+</tr>
+<tr class="row-even"><td>stash.excludes</td>
+<td>The files to ignore.</td>
+<td>&#160;</td>
+<td>false</td>
+</tr>
+<tr class="row-odd"><td>stash.useDefaultExcludes</td>
+<td>Whether to use the default exludes of the Jenkins stash step.</td>
+<td>true</td>
+<td>false</td>
+</tr>
+<tr class="row-even"><td>stash.allowEmpty</td>
+<td>Whether or not the stash may contain no files</td>
+<td>false</td>
+<td>false</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="example-implementation">
+<h2>Example Implementation<a class="headerlink" href="#example-implementation" title="Permalink to this headline">¶</a></h2>
+<p>Below is an example of configuring the default step implementation to act as a <code class="docutils literal"><span class="pre">unit_test</span></code>
+step to run a test suite through maven.</p>
+<div class="code groovy highlight-default"><div class="highlight"><pre><span></span><span class="n">steps</span><span class="p">{</span>
+    <span class="n">unit_test</span><span class="p">{</span>
+        <span class="n">stage</span> <span class="o">=</span> <span class="s2">&quot;Unit Test&quot;</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="s2">&quot;maven&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;mvn clean verify&quot;</span>
+        <span class="n">stash</span><span class="p">{</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;test-results&quot;</span>
+            <span class="n">includes</span> <span class="o">=</span> <span class="s2">&quot;./target&quot;</span>
+            <span class="n">excludes</span> <span class="o">=</span> <span class="s2">&quot;./src&quot;</span>
+            <span class="n">useDefaultExcludes</span> <span class="o">=</span> <span class="n">false</span>
+            <span class="n">allowEmpty</span> <span class="o">=</span> <span class="n">true</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>With this configuration in place, <code class="docutils literal"><span class="pre">unit_test()</span></code> will be callable from a pipeline template and will
+run <code class="docutils literal"><span class="pre">mvn</span> <span class="pre">clean</span> <span class="pre">verify</span></code> inside the <code class="docutils literal"><span class="pre">maven</span></code> container image.  The <code class="docutils literal"><span class="pre">./target</span></code> directory will be
+stored for later use by stashing the contents in a stash named <code class="docutils literal"><span class="pre">test-results</span></code>.</p>
+<p>In addition to calling commands, your default step implementations can run scripts. Instead of the
+<cite>command</cite> field, use the <cite>script</cite> field and pass the path for the script in your application
+repository. Below is an example</p>
+<div class="code groovy highlight-default"><div class="highlight"><pre><span></span><span class="n">steps</span><span class="p">{</span>
+    <span class="n">unit_test</span><span class="p">{</span>
+        <span class="n">stage</span> <span class="o">=</span> <span class="s2">&quot;Unit Test&quot;</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="s2">&quot;maven&quot;</span>
+        <span class="n">script</span> <span class="o">=</span> <span class="o">./</span><span class="n">tests</span><span class="o">/</span><span class="n">unit_test</span><span class="o">.</span><span class="n">sh</span>
+        <span class="n">stash</span><span class="p">{</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;test-results&quot;</span>
+            <span class="n">includes</span> <span class="o">=</span> <span class="s2">&quot;./target&quot;</span>
+            <span class="n">excludes</span> <span class="o">=</span> <span class="s2">&quot;./src&quot;</span>
+            <span class="n">useDefaultExcludes</span> <span class="o">=</span> <span class="n">false</span>
+            <span class="n">allowEmpty</span> <span class="o">=</span> <span class="n">true</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can name the keys within <code class="docutils literal"><span class="pre">steps</span></code> whatever you please, and they will be callable as methods.</p>
+</div>
 </div>
 
 
@@ -240,6 +357,10 @@
         <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
+        <dl>
+            <dt>Tags</dt>
+            <dd><a href="../../../../v0.1-alpha/pages/Templating/configuration_files/default_step_implementation.html">v0.1-alpha</a></dd>
+        </dl>
         <dl>
             <dt>Branches</dt>
             <dd><a href="default_step_implementation.html">master</a></dd>
