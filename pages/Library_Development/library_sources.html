@@ -95,7 +95,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../Templating/primitives/stages.html">Stages</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../Templating/libraries.html">Pipeline Libraries</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Governance/index.html">Governance Model</a><ul>
@@ -192,6 +191,110 @@
 
 <div class="section" id="library-sources">
 <h1>Library Sources<a class="headerlink" href="#library-sources" title="Permalink to this headline">¶</a></h1>
+<p>Pipeline libraries provide a modular way to organize pipeline code.</p>
+<p>With the Jenkins Templating Engine, templates can invoke steps.  These steps are
+typically generically named and are contributed by a pipeline library.  If multiple
+libraries contribute the same step name, they can be swapped in and out of the template’s
+execution by modifying the pipeline configuration.</p>
+<div class="section" id="library-source-jenkins-configuration">
+<h2>Library Source Jenkins Configuration<a class="headerlink" href="#library-source-jenkins-configuration" title="Permalink to this headline">¶</a></h2>
+<p>Library Sources get configured as part of a <a class="reference internal" href="../Governance/index.html#governance-model"><span class="std std-ref">Governance Tier</span></a>.  Within <code class="docutils literal"><span class="pre">Manage</span>
+<span class="pre">Jenkins</span> <span class="pre">&gt;</span> <span class="pre">Configure</span> <span class="pre">System</span></code> you’ll find the global Jenkins Templating Engine Configuration:</p>
+<img alt="../../_images/library_source_configuration.png" src="../../_images/library_source_configuration.png" />
+<p>Under <code class="docutils literal"><span class="pre">Library</span> <span class="pre">Sources</span></code> you’ll be able to add as many sources as you choose.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">A library source is just a pointer to a source code repository containing library modules.</p>
+</div>
+</div>
+<div class="section" id="library-source-structure">
+<h2>Library Source Structure<a class="headerlink" href="#library-source-structure" title="Permalink to this headline">¶</a></h2>
+<p>Individual libraries are just directories within the configured library source repository.</p>
+<p>The library is referenceable in your <code class="docutils literal"><span class="pre">pipeline_config.groovy</span></code> file via the directory name.</p>
+<p>Each file within a library directory will be loaded as a step invokable from a pipeline template where
+the step name is equal to the base file name.</p>
+</div>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>Let’s say you had a simple pipeline template to support teams using maven and ant as their build tools:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">unit_test</span><span class="p">()</span>
+<span class="n">build</span><span class="p">()</span>
+<span class="n">package</span><span class="p">()</span>
+<span class="n">deploy_to</span> <span class="n">dev</span>
+</pre></div>
+</div>
+<p>GitHub Repository called <code class="docutils literal"><span class="pre">jte-lib</span></code> located at <code class="docutils literal"><span class="pre">https://github.com/jte-library-example/jte-lib.git</span></code>
+with the following directory structure:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">maven</span><span class="o">/</span>
+    <span class="n">build</span><span class="o">.</span><span class="n">groovy</span>
+    <span class="n">package</span><span class="o">.</span><span class="n">groovy</span>
+    <span class="n">unit_test</span><span class="o">.</span><span class="n">groovy</span>
+    <span class="n">README</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">ant</span><span class="o">/</span>
+    <span class="n">build</span><span class="o">.</span><span class="n">groovy</span>
+    <span class="n">package</span><span class="o">.</span><span class="n">groovy</span>
+    <span class="n">unit_test</span><span class="o">.</span><span class="n">groovy</span>
+    <span class="n">README</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">weblogic</span><span class="o">/</span>
+    <span class="n">deploy_to</span><span class="o">.</span><span class="n">groovy</span>
+    <span class="n">README</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">glassfish</span><span class="o">/</span>
+    <span class="n">deploy_to</span><span class="o">.</span><span class="n">groovy</span>
+    <span class="n">README</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">sonarqube</span><span class="o">/</span>
+    <span class="n">static_code_analysis</span><span class="o">.</span><span class="n">groovy</span>
+    <span class="n">README</span><span class="o">.</span><span class="n">rst</span>
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">As a best practice, it is ideal to have a README in each library
+directory that explains what the library does as well as any configuration
+options for the library.  With Booz Allen’s <a class="reference external" href="https://github.com/boozallen/sdp-libraries.git">Solutions Delivery Platform
+JTE Libraries</a>, we use
+sphinx to automatically compile the library README.rst files into a published
+documentation github pages site to communicate libraries developed and how to
+use them.</p>
+</div>
+<p>You would then configure this repository as a library source either in the
+global Jenkins Templating Engine Configuration or in a Governance Tier. This
+will make the libraries <code class="docutils literal"><span class="pre">maven</span></code>, <code class="docutils literal"><span class="pre">ant</span></code>, <code class="docutils literal"><span class="pre">weblogic</span></code>, <code class="docutils literal"><span class="pre">glassfish</span></code>, and
+<code class="docutils literal"><span class="pre">sonarqube</span></code> accessible to be loaded.</p>
+<p>Let’s say one application is using Maven and deploying to a Weblogic server.</p>
+<p>Their configuration file could be:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">application_environments</span><span class="p">{</span>
+    <span class="n">dev</span><span class="p">{</span>
+        <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">libraries</span><span class="p">{</span>
+    <span class="n">maven</span>
+    <span class="n">sonarqube</span>
+    <span class="n">weblogic</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>while an application using Ant and deploying to a GlassFish server would have</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">pplication_environments</span><span class="p">{</span>
+    <span class="n">dev</span><span class="p">{</span>
+        <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">libraries</span><span class="p">{</span>
+    <span class="n">ant</span>
+    <span class="n">sonarqube</span>
+    <span class="n">glassfish</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>and in both instances, the applications would be using the same pipeline template.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For a more in-depth view on how to build a library, go check out <a class="reference internal" href="index.html#library-development"><span class="std std-ref">Library Development</span></a></p>
+</div>
+</div>
 </div>
 
 

@@ -32,7 +32,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Configuration Files" href="config_files.html" />
-    <link rel="prev" title="Pipeline Libraries" href="../Templating/libraries.html" /> 
+    <link rel="prev" title="Stages" href="../Templating/primitives/stages.html" /> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
@@ -95,7 +95,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../Templating/primitives/stages.html">Stages</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../Templating/libraries.html">Pipeline Libraries</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Governance Model</a><ul>
@@ -190,12 +189,32 @@
 
 <div class="section" id="id1">
 <h1>Governance Model<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>One of the challenges associated with having a Jenkinsfile in every application
+source code repository is having governance within an organization over how software
+gets developed.</p>
+<p>Each team may be doing something slightly differently and developers have access to
+bypass any required security gates by manipulating the Jenkinsfile.</p>
+<p>With the Jenkins Templating Engine, you’re able to have a much clearer picture of
+the software delivery processes within an organization by consolidating your pipeline
+into a set of reusable templates managed within one or multiple pipeline configuration
+repositories.</p>
+<p>With JTE, you can configure a governance structure matching your organization’s
+hierarchy through Governance Tiers.</p>
+<div class="section" id="governance-tier">
+<h2>Governance Tier<a class="headerlink" href="#governance-tier" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="configuration-file-governance">
+<h2>Configuration File Governance<a class="headerlink" href="#configuration-file-governance" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pipeline-template-library-selection">
+<h2>Pipeline Template &amp; Library Selection<a class="headerlink" href="#pipeline-template-library-selection" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="config_files.html">Configuration Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="governance_tiers.html">Governance Tiers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="template_selection.html">Template Selection</a></li>
 </ul>
+</div>
 </div>
 </div>
 
@@ -210,7 +229,7 @@
         <a href="config_files.html" class="btn btn-neutral float-right" title="Configuration Files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../Templating/libraries.html" class="btn btn-neutral" title="Pipeline Libraries" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../Templating/primitives/stages.html" class="btn btn-neutral" title="Stages" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
