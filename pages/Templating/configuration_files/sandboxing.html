@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../Governance/index.html">Governance Model</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../Governance/config_files.html">Configuration Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../Governance/governance_tiers.html">Governance Tiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Governance/template_selection.html">Template Selection</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../Library_Development/index.html">Library Development</a><ul>
@@ -193,6 +194,24 @@
 
 <div class="section" id="id1">
 <h1>Sandboxing<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>Jenkins Templating Engine <code class="docutils literal"><span class="pre">pipeline_config.groovy</span></code> configuration files are a custom DSL intent
+on making configuration as user friendly as possible.</p>
+<p>Due to the fact that these configuration files get executed as a script, their runtime is
+extremely sandboxed to allow little more than key/value setting.</p>
+<p>Attempting to do inappropriate things, like accessing the <code class="docutils literal"><span class="pre">/etc/passwd</span></code> file on the master,
+will result in a Security Exception being thrown.</p>
+<p>For example, the following configuration file:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">application_environments</span><span class="p">{</span>
+    <span class="n">dev</span><span class="p">{</span>
+        <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;Development&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">password</span> <span class="o">=</span> <span class="n">new</span> <span class="n">File</span><span class="p">(</span><span class="s2">&quot;/etc/passwd&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+</pre></div>
+</div>
+<p>would result in:</p>
+<img alt="../../../_images/jte_security_exception.png" src="../../../_images/jte_security_exception.png" />
 </div>
 
 
