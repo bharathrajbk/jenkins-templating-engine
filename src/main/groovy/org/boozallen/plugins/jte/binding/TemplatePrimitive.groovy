@@ -17,6 +17,9 @@
 package org.boozallen.plugins.jte.binding
 
 import org.boozallen.plugins.jte.config.TemplateConfigObject
+import hudson.ExtensionPoint
+import hudson.ExtensionList
+import jenkins.model.Jenkins 
 
 /*
     A base class for objects that will be stored in the 
@@ -24,10 +27,17 @@ import org.boozallen.plugins.jte.config.TemplateConfigObject
     these objects from being overridden during initialization,
     by library developers, or by pipeline templates.
 */
-abstract class TemplatePrimitive implements Serializable{
+abstract class TemplatePrimitive implements Serializable, ExtensionPoint{
     // gets called during template initialization
     abstract void throwPreLockException()
 
     //gets called after template initialization
     abstract void throwPostLockException()
+
+    abstract String getName()
+
+    // used to get all loaders
+    static ExtensionList<TemplatePrimitive> all(){
+        return Jenkins.getActiveInstance().getExtensionList(TemplatePrimitive)
+    }
 }

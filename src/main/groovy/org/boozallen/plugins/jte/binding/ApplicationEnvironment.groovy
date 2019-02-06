@@ -16,6 +16,7 @@
 
 package org.boozallen.plugins.jte.binding
 
+import org.boozallen.plugins.jte.binding.formElements.*
 import org.boozallen.plugins.jte.config.*
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 import hudson.Extension 
@@ -23,11 +24,13 @@ import hudson.Extension
 /*
     represents an immutable application environment. 
 */
-class ApplicationEnvironment extends TemplatePrimitive{
+@Extension class ApplicationEnvironment extends TemplatePrimitive{
     String var_name
     String short_name
     String long_name
     final def config
+
+    final static String CONFIG_FIELD = "application_environments"
     
     ApplicationEnvironment(){}
 
@@ -45,6 +48,10 @@ class ApplicationEnvironment extends TemplatePrimitive{
                 throw TemplateConfigException instead for the sake of logging.
         */
         config = config.asImmutable()
+    }
+
+    String getName(){
+        return CONFIG_FIELD
     }
     
     Object getProperty(String name){
@@ -89,10 +96,38 @@ class ApplicationEnvironment extends TemplatePrimitive{
     */
     @Extension static class Injector extends TemplatePrimitiveInjector {
         static void doInject(TemplateConfigObject config, CpsScript script){
-            config.getConfig().application_environments.each{ name, appEnvConfig ->
+            config.getConfig()."$ApplicationEnvironment.CONFIG_FIELD".each{ name, appEnvConfig ->
                 ApplicationEnvironment appEnv = new ApplicationEnvironment(name, appEnvConfig)
                 script.getBinding().setVariable(name, appEnv)
             }
+        }
+    }
+
+    /*
+    * Creates a list of form elements gives information about fields users need to fill out to configure a pipeline 
+    */
+    @Extension static class FormConfig extends JTEFormConfiguration{        
+        static List<JTEFormElement> getFormElements() {
+            List<JTEFormElement> formElements = new ArrayList() 
+            formElements.push(new Input("Short Name", "short_name", "The short name is the variable that will be used within the Jenkinsfile to reference the long name.", "string") )
+            formElements.push(new Input("Long Name", "long_name", "The long name is the actual name that will be used whenever the short name is referenced.", "string" ))
+            return formElements; 
+        }
+
+        public String getDisplayName(){
+            return "Application Environments"
+        }
+
+        public String getName(){
+            return ApplicationEnvironment.CONFIG_FIELD
+        }
+
+        public String getDescription(){
+            return "Enter the names for different Application Environments that you'd like to deploy to."
+        }
+
+        public boolean isUserAddable(){
+            return true;
         }
     }
 

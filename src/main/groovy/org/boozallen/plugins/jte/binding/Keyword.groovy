@@ -24,11 +24,16 @@ import hudson.Extension
 /*
     represents a protected variable in the jenkinsfile
 */
-class Keyword extends TemplatePrimitive{
+@Extension class Keyword extends TemplatePrimitive{
     String var_name
     Object value
 
     Keyword(){}
+
+    String getName(){
+        return CONFIG_FIELD
+    }
+
 
     Object getValue(){
         return value
@@ -49,7 +54,7 @@ class Keyword extends TemplatePrimitive{
 
     @Extension static class Injector extends TemplatePrimitiveInjector {
         static void doInject(TemplateConfigObject config, CpsScript script){
-            config.getConfig().keywords.each{ key, value ->
+            config.getConfig()."$Keyword.CONFIG_FIELD".each{ key, value ->
                 script.getBinding().setVariable(key, new Keyword(key, value))
             }
         }

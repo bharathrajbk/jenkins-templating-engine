@@ -16,6 +16,7 @@
 
 package org.boozallen.plugins.jte.binding 
 
+import org.boozallen.plugins.jte.binding.formElements.*
 import org.boozallen.plugins.jte.config.*
 import org.boozallen.plugins.jte.Utils
 import org.codehaus.groovy.runtime.InvokerHelper
@@ -27,10 +28,11 @@ import jenkins.model.Jenkins
 /*
     represents a group of library steps to be called. 
 */
-class Stage extends TemplatePrimitive {
+@Extension class Stage extends TemplatePrimitive {
     CpsScript script 
     String name
     ArrayList<String> steps
+    final static String CONFIG_FIELD = "stages"
 
     Stage(){}
 
@@ -39,6 +41,11 @@ class Stage extends TemplatePrimitive {
         this.name = name
         this.steps = steps 
     }
+
+    String getName(){
+        return CONFIG_FIELD
+    }
+
 
     void call(){
         /*
@@ -66,12 +73,38 @@ class Stage extends TemplatePrimitive {
 
     @Extension static class Injector extends TemplatePrimitiveInjector {
         static void doInject(TemplateConfigObject config, CpsScript script){
-            config.getConfig().stages.each{name, steps ->
+            config.getConfig()."$Stage.CONFIG_FIELD".each{name, steps ->
                 ArrayList<String> stepsList = new ArrayList()
                 steps.collect(stepsList){ it.key }
                 script.getBinding().setVariable(name, new Stage(script, name, stepsList))
             }
         }
     }
+
+    /*
+    * Creates a list of form elements gives information about fields users need to fill out to configure a pipeline 
+    */
+    @Extension static class FormConfig extends JTEFormConfiguration{        
+        static List<JTEFormElement> getFormElements() {
+            List<JTEFormElement> formElements = new ArrayList() 
+            List<JTEFormElement> rightOptions = new ArrayList() 
+             formElements.push(new Input("Stage Name", "stage_name", "Define the name of your new stage to reference it in your JenkinsFile.", "string") )
+            formElements.push(new MultipleSelect("Configure the Steps", "steps", "Choose the steps you'd like to place in this stage.", "JTE-Libraries", "JTE-Library","Selected Steps", rightOptions))
+            return formElements; 
+        }
+         public String getDisplayName(){
+            return "Stages"
+        }
+         public String getName(){
+            return Stage.CONFIG_FIELD
+        }
+         public String getDescription(){
+            return "Enter the names for different Application Environments that you'd like to deploy to."
+        }
+         public boolean isUserAddable(){
+            return true;
+        }
+    }
+
 
 }

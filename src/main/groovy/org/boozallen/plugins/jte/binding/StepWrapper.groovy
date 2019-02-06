@@ -30,7 +30,7 @@ import jenkins.model.Jenkins
 /*
     represents a library step
 */
-class StepWrapper extends TemplatePrimitive{
+@Extension class StepWrapper extends TemplatePrimitive{
     public static final String libraryConfigVariable = "config" 
     private Object impl
     private CpsScript script
@@ -51,6 +51,11 @@ class StepWrapper extends TemplatePrimitive{
         this.name = name
         this.library = library 
     }
+
+    String getName(){
+        return CONFIG_FIELD
+    }
+
 
     @Whitelisted
     def call(Object... args){
