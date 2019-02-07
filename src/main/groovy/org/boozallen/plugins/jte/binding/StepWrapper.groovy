@@ -35,7 +35,7 @@ import jenkins.model.Jenkins
     private Object impl
     private CpsScript script
     private String name
-    private String library 
+    private String library
     
     StepWrapper(){}
 
@@ -53,7 +53,7 @@ import jenkins.model.Jenkins
     }
 
     String getName(){
-        return CONFIG_FIELD
+        return "step_wrapper"
     }
 
 

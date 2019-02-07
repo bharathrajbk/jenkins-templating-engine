@@ -6,6 +6,9 @@ import hudson.Plugin;
 import org.kohsuke.stapler.export.ExportedBean;
 import org.boozallen.services.Primitives
 
+/**
+* The API Endpoint for this would be /plugin/jte
+*/ 
 
 @Extension
 @ExportedBean

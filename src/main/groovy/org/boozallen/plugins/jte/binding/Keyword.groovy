@@ -27,6 +27,7 @@ import hudson.Extension
 @Extension class Keyword extends TemplatePrimitive{
     String var_name
     Object value
+    final static String CONFIG_FIELD = "keywords"
 
     Keyword(){}
 

@@ -12,6 +12,7 @@ import org.boozallen.plugins.jte.binding.JTEFormConfiguration;
 
 import java.io.IOException;
 
+//Sample URL for this enpdoint would be http://localhost:8080/plugin/jte/primitives/
 public class Primitives extends Api{
     
     public Primitives(Object bean) {
@@ -94,10 +95,13 @@ public class Primitives extends Api{
 
     // }
 
+    //Sample URL for this enpdoint would be http://localhost:8080/plugin/jte/primitives/all
     @WebMethod(name = "all")
     public void getPrimitives(StaplerRequest req, StaplerResponse rsp)
         throws IOException {
         rsp.setContentType("application/json");
+        
+        //Enables pretty printed response
         if (req.getQueryString() != null && !req.getQueryString().isEmpty() && req.getQueryString().equals("pretty=true")) {
             rsp.getWriter().write(getInformation().toString(4));
         }
