@@ -17,7 +17,7 @@
 void call(){
 
   /*
-    var config comes from metaClass and is defined by the LibraryLoader.doPostInject() 
+    var config comes from metaClass and is defined by the LibraryLoader.doPostInject()
   */
   if (!config.isDefined) return
 
@@ -47,21 +47,24 @@ void call(){
         def img = config.image ?:
                   { error "Image not defined for ${config.step}. \n ${error_msg}" }()
 
+        // include optional docker arguments
+        def args = config.docker_args ?: ""
+
         // execute step
-        docker.image(img).inside{
-            
+        docker.image(img).inside(args){
+
             /*
                 this part of the framework needs some thought..
                 how to pass the workspace around so libraries can access files
-                from scm without all having to do a clone. 
+                from scm without all having to do a clone.
 
                 for now - we stash the workspace at the beginning of the build
-                after doing a `checkout scm`. 
+                after doing a `checkout scm`.
             */
             try{
-                unstash "workspace" 
+                unstash "workspace"
             }catch(any){}
-            
+
                 // validate only one of command or script is set
             if (!config.subMap(["command", "script"]).size().equals(1)){
                 error error_msg
