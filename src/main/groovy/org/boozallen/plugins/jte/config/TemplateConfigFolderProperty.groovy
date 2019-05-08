@@ -34,6 +34,9 @@ public class TemplateConfigFolderProperty extends AbstractFolderProperty<Abstrac
     }
 
     public GovernanceTier getTier(){
+        if (tier.parentName == "Global"){
+            tier.setParentName(getOwner().getName())
+        }
         return tier 
     }
 

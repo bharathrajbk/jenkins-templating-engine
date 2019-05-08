@@ -40,6 +40,7 @@ public class GovernanceTier extends AbstractDescribableImpl<GovernanceTier> impl
     String baseDir
     SCM scm 
     List<TemplateLibrarySource> librarySources = new ArrayList() 
+    String parentName = "Global" 
 
     @DataBoundConstructor public GovernanceTier(SCM scm, String baseDir, List<TemplateLibrarySource> librarySources){
         this.scm = scm
@@ -47,6 +48,7 @@ public class GovernanceTier extends AbstractDescribableImpl<GovernanceTier> impl
         this.librarySources = librarySources
     }
 
+    public void setParentName(String parentName){ this.parentName = parentName }
     public String getBaseDir(){ return baseDir }
     public SCM getScm(){ return scm }
     public List<TemplateLibrarySource> getLibrarySources(){ return librarySources }
