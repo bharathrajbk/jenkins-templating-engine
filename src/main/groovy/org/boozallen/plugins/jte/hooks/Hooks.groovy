@@ -13,20 +13,19 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.hooks
 
 import org.boozallen.plugins.jte.Utils
-import org.boozallen.plugins.jte.binding.* 
+import org.boozallen.plugins.jte.binding.*
 import java.lang.annotation.Annotation
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted 
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted
 import jenkins.model.Jenkins
 
 class Hooks implements Serializable{
 
     @Whitelisted
     static List<AnnotatedMethod> discover(Class<? extends Annotation> a, TemplateBinding b){
-        List<AnnotatedMethod> discovered = new ArrayList() 
+        List<AnnotatedMethod> discovered = new ArrayList()
 
         List<StepWrapper> stepWrappers = b.getVariables().collect{ it.value }.findAll{ it instanceof StepWrapper }
 
@@ -34,8 +33,8 @@ class Hooks implements Serializable{
             step.impl.class.methods.each{ method ->
                 if (method.getAnnotation(a)){
                     AnnotatedMethod am = new AnnotatedMethod(a.getSimpleName(), method.name, step)
-                    discovered.push(am) 
-                }            
+                    discovered.push(am)
+                }
             }
         }
 
@@ -57,5 +56,5 @@ class Hooks implements Serializable{
                                 .text
         Utils.parseScript(invoke, b)(a, b, context)
     }
-    
+
 }

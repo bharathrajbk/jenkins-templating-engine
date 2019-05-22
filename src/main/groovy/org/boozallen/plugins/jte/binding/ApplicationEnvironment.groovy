@@ -13,40 +13,39 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.binding
 
 import org.boozallen.plugins.jte.config.*
 import org.jenkinsci.plugins.workflow.cps.CpsScript
-import hudson.Extension 
+import hudson.Extension
 
 /*
-    represents an immutable application environment. 
+    represents an immutable application environment.
 */
 class ApplicationEnvironment extends TemplatePrimitive{
     String var_name
     String short_name
     String long_name
     final def config
-    
+
     ApplicationEnvironment(){}
 
-    ApplicationEnvironment(String var_name, Map _config){ 
+    ApplicationEnvironment(String var_name, Map _config){
         this.var_name = var_name
 
-        short_name = _config.short_name ?: var_name 
-        long_name = _config.long_name ?: var_name 
-        
+        short_name = _config.short_name ?: var_name
+        long_name = _config.long_name ?: var_name
+
         config = _config - _config.subMap(["short_name", "long_name"])
         /*
-            TODO: 
-                this makes it so that changing <inst>.config.whatever = <some value> 
-                will throw an UnsupportOperationException.  Need to figure out how to 
+            TODO:
+                this makes it so that changing <inst>.config.whatever = <some value>
+                will throw an UnsupportOperationException.  Need to figure out how to
                 throw TemplateConfigException instead for the sake of logging.
         */
         config = config.asImmutable()
     }
-    
+
     Object getProperty(String name){
         def meta = ApplicationEnvironment.metaClass.getMetaProperty(name)
         if (meta) {
@@ -70,21 +69,21 @@ class ApplicationEnvironment extends TemplatePrimitive{
     }
 
     /*
-        inject ApplicationEnvironment objects into the binding. 
+        inject ApplicationEnvironment objects into the binding.
 
-        example configuration: 
+        example configuration:
 
         application_environments{
             dev{
-                openshift_url = "https://example.com:8443" 
+                openshift_url = "https://example.com:8443"
             }
             test
             prod{
-                long_name = "Production" 
+                long_name = "Production"
             }
         }
 
-        would create ApplicationEnvironment objects dev, test, and prod 
+        would create ApplicationEnvironment objects dev, test, and prod
         that could be referenced from a pipeline template
     */
     @Extension static class Injector extends TemplatePrimitiveInjector {

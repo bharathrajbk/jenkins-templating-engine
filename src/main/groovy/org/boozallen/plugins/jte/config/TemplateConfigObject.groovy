@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.config
 
 class TemplateConfigObject implements Serializable{
@@ -25,11 +24,11 @@ class TemplateConfigObject implements Serializable{
     TODO:
         come back to this.  libraries should probably be mergeable by
         default recursively. so you dont have to specify the allowance
-        of additional library configs for each library. 
-        
+        of additional library configs for each library.
+
     ArrayList getMerge(){
         if(config.libraries) merge << getNestedLibraryKeys(config.libraries)
-        return merge 
+        return merge
     }
 
     def getNestedLibraryKeys(map, result = [], String keyPrefix = 'libraries.') {

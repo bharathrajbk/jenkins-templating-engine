@@ -13,12 +13,11 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.config
 
 import groovy.transform.InheritConstructors
 
 /*
-    to be used when an error related to a template config file arises. 
+    to be used when an error related to a template config file arises.
 */
 @InheritConstructors class TemplateConfigException extends Exception{}

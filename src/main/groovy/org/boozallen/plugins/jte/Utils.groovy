@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte
 
 import org.boozallen.plugins.jte.binding.TemplateBinding
@@ -41,15 +40,15 @@ import org.jenkinsci.plugins.workflow.flow.FlowDefinition
 import java.lang.reflect.Field
 import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.codehaus.groovy.control.CompilerConfiguration
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted 
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted
 
 class Utils implements Serializable{
 
     static TaskListener listener
-    static FlowExecutionOwner owner 
-    static WorkflowRun build 
-    static PrintStream logger 
-    static WorkflowJob currentJob 
+    static FlowExecutionOwner owner
+    static WorkflowRun build
+    static PrintStream logger
+    static WorkflowJob currentJob
 
     /*
         We do a lot of executing the code inside files and we're also
@@ -59,20 +58,20 @@ class Utils implements Serializable{
         is insufficient for our needs because it instantiates each shell with
         a new Binding() instead of using getBinding().
 
-        Of course, there's no setContext() method on GroovyShell or 
-        CpsGroovyShell to override the binding used in the constructor, 
-        so we've gotta use reflection to override it directly. 
+        Of course, there's no setContext() method on GroovyShell or
+        CpsGroovyShell to override the binding used in the constructor,
+        so we've gotta use reflection to override it directly.
 
         /rant
     */
     static Script parseScript(String scriptText, Binding b){
-        
-        // get shell for parsing step 
+
+        // get shell for parsing step
         /*
             technically returns a CpsGroovyShell.. accessing that class
-            during runtime results in IllegalAccessError. 
+            during runtime results in IllegalAccessError.
 
-            kinda silly all you have to do bypass that is cast to the superclass. 
+            kinda silly all you have to do bypass that is cast to the superclass.
         */
         GroovyShell shell = CpsThreadGroup.current().getExecution().getTrustedShell()
 
@@ -81,9 +80,9 @@ class Utils implements Serializable{
         configF.setAccessible(true)
 
         /*
-            TODO: 
-                this should probably be an extension point to allow additional 
-                boiler plate when parsing files into scripts for invocation? 
+            TODO:
+                this should probably be an extension point to allow additional
+                boiler plate when parsing files into scripts for invocation?
 
                 TemplateScriptCustomizer.all() returning List<CompilationCustomizer>
 
@@ -95,42 +94,42 @@ class Utils implements Serializable{
         CompilerConfiguration cc = configF.get(shell)
         cc.addCompilationCustomizers(ic)
 
-        // modify the shell 
+        // modify the shell
         configF.set(shell, cc)
 
-        // parse the script 
+        // parse the script
         Script script = shell.getClassLoader().parseClass(scriptText).newInstance()
 
         // set the script binding to our TemplateBinding
         script.setBinding(b)
 
-        return script 
+        return script
     }
 
     static PrintStream getLogger(){
         getCurrentJob()
-        return logger 
+        return logger
     }
 
     static TaskListener getListener(){
         getCurrentJob()
-        return listener 
+        return listener
     }
 
     /*
         get a file contents from an SCM source
 
         if no SCM is supplied, well try to infer it from the job
-        
-        return null if file not present 
-        throw exception if checkout failed or filePath is directory 
+
+        return null if file not present
+        throw exception if checkout failed or filePath is directory
     */
     static String getFileContents(String filePath, SCM scm, String loggingDescription){
 
         WorkflowJob job = getCurrentJob()
-        PrintStream logger = getLogger() 
+        PrintStream logger = getLogger()
 
-        // create SCMFileSystem 
+        // create SCMFileSystem
         def(SCMFileSystem fs, String scmKey) = scmFileSystemOrNull(scm, job, logger )
 
         if (fs){
@@ -138,7 +137,7 @@ class Utils implements Serializable{
             return fsw.getFileContents(filePath)
         }
 
-        return null 
+        return null
     }
 
     /*
@@ -183,8 +182,8 @@ class Utils implements Serializable{
         }
 
         this.owner = thread.getExecution().getOwner()
-        this.listener = owner.getListener()    
-        this.logger = listener.getLogger()   
+        this.listener = owner.getListener()
+        this.logger = listener.getLogger()
 
         Queue.Executable exec = owner.getExecutable()
         if (!(exec instanceof WorkflowRun)) {
@@ -200,7 +199,7 @@ class Utils implements Serializable{
     @Whitelisted
     static String getTemplate(Map config){
 
-        // tenant Jenkinsfile if allowed 
+        // tenant Jenkinsfile if allowed
         String repoJenkinsfile = getFileContents("Jenkinsfile", null, "Repository Jenkinsfile")
         if (repoJenkinsfile){
             if (config.allow_scm_jenkinsfile){
@@ -212,11 +211,11 @@ class Utils implements Serializable{
 
         // specified pipeline template from pipeline template directories in governance tiers
         List<GovernanceTier> tiers = GovernanceTier.getHierarchy()
-        if (config.pipeline_template){ 
+        if (config.pipeline_template){
             for (tier in tiers){
                 String pipelineTemplate = tier.getTemplate(config.pipeline_template)
                 if (pipelineTemplate){
-                    return pipelineTemplate 
+                    return pipelineTemplate
                 }
             }
             throw new TemplateConfigException("Pipeline Template ${config.pipeline_template} could not be found in hierarchy.")
@@ -228,7 +227,7 @@ class Utils implements Serializable{
         for (tier in tiers){
             String pipelineTemplate = tier.getJenkinsfile()
             if (pipelineTemplate){
-                return pipelineTemplate 
+                return pipelineTemplate
             }
         }
 
@@ -239,7 +238,7 @@ class Utils implements Serializable{
     @Whitelisted
     static void findAndRunTemplate(LinkedHashMap pipelineConfig, TemplateBinding binding){
         String template = getTemplate(pipelineConfig)
-        parseScript(template, binding).run() 
+        parseScript(template, binding).run()
     }
 
     static class Logger {

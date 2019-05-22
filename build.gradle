@@ -1,7 +1,9 @@
 plugins {
+  id 'groovy'
   id 'org.jenkins-ci.jpi' version '0.27.0'
   id 'jacoco' 
   id 'application'
+  id "com.diffplug.gradle.spotless" version "3.23.0"
 }
 
 repositories {
@@ -83,5 +85,15 @@ task testStable(type: Test) {
 task testIntegration(type: Test) {
     useJUnit {
         includeCategories 'org.boozallen.plugins.jte.testcategories.Integration'
+    }
+}
+
+spotless{
+    groovy{
+        licenseHeaderFile 'LICENSE_HEADER'
+        paddedCell()
+        indentWithSpaces(2)
+        endWithNewline()
+        trimTrailingWhitespace()
     }
 }

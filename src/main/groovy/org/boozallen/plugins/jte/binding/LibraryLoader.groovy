@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.binding
 
 import org.boozallen.plugins.jte.config.TemplateConfigObject
@@ -21,7 +20,7 @@ import org.boozallen.plugins.jte.config.TemplateConfigException
 import org.boozallen.plugins.jte.config.TemplateLibrarySource
 import org.boozallen.plugins.jte.config.GovernanceTier
 import org.boozallen.plugins.jte.Utils
-import hudson.Extension 
+import hudson.Extension
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
 
@@ -30,24 +29,24 @@ import org.jenkinsci.plugins.workflow.job.WorkflowJob
     static void doInject(TemplateConfigObject config, CpsScript script){
         // 1. Inject steps from loaded libraries
         PrintStream logger = Utils.getLogger()
-        List<GovernanceTier> tiers = GovernanceTier.getHierarchy() 
+        List<GovernanceTier> tiers = GovernanceTier.getHierarchy()
         List<TemplateLibrarySource> sources = tiers.collect{ it.librarySources }.flatten().minus(null)
-        
+
         config.getConfig().libraries.each{ libName, libConfig ->
             TemplateLibrarySource s = sources.find{ it.hasLibrary(libName) }
-            if (!s){ 
-                throw new TemplateConfigException("Library ${libName} Not Found.") 
+            if (!s){
+                throw new TemplateConfigException("Library ${libName} Not Found.")
             }
             s.loadLibrary(script, libName, libConfig)
         }
         // 2. Inject steps with default step implementation for configured steps
-        TemplateBinding binding = script.getBinding() 
+        TemplateBinding binding = script.getBinding()
         config.getConfig().steps.findAll{ stepName, stepConfig ->
             if (binding.hasStep(stepName)){
                 logger.println "[JTE] Warning: Configured step ${stepName} ignored. Loaded by the ${binding.getStep(stepName).library} Library."
-                return false 
+                return false
             }
-            return true 
+            return true
         }.each{ stepName, stepConfig ->
             logger.println "[JTE] Creating step ${stepName} from the default step implementation."
             StepWrapper step = StepWrapper.createDefaultStep(script, stepName, stepConfig)
@@ -60,7 +59,7 @@ import org.jenkinsci.plugins.workflow.job.WorkflowJob
         TemplateBinding binding = script.getBinding()
         config.getConfig().template_methods.findAll{ step ->
             !(step.key in binding.registry)
-        }.each{ step -> 
+        }.each{ step ->
             StepWrapper sw = StepWrapper.createNullStep(step.key, script)
             binding.setVariable(step.key, sw)
         }

@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.config
 
 import org.codehaus.groovy.control.CompilerConfiguration
@@ -33,19 +32,19 @@ import org.kohsuke.groovy.sandbox.SandboxTransformer
     """)
 */
 class TemplateConfigDsl implements Serializable{
-  
+
   static TemplateConfigObject parse(String script_text){
 
     TemplateConfigObject templateConfig = new TemplateConfigObject()
-    
+
     Binding our_binding = new Binding(templateConfig: templateConfig)
-    
+
     CompilerConfiguration cc = new CompilerConfiguration()
     cc.addCompilationCustomizers(new SandboxTransformer())
     cc.scriptBaseClass = TemplateConfigBuilder.class.name
-    
+
     GroovyShell sh = new GroovyShell(TemplateConfigDsl.classLoader, our_binding, cc);
-    
+
     TemplateConfigDslSandbox sandbox = new TemplateConfigDslSandbox()
     sandbox.register();
     try {
@@ -53,7 +52,7 @@ class TemplateConfigDsl implements Serializable{
     }finally {
       sandbox.unregister();
     }
-    
+
     return templateConfig
   }
 

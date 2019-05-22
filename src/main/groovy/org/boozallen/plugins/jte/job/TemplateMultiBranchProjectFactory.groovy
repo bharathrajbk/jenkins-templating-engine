@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.job
 
 import hudson.Extension
@@ -62,7 +61,7 @@ public class TemplateMultiBranchProjectFactory extends MultiBranchProjectFactory
         return new SCMSourceCriteria() {
             private static final long serialVersionUID = 1L
 
-			@Override
+      @Override
             public boolean isHead(Probe probe, TaskListener listener) throws IOException {
                 return true
             }
@@ -87,12 +86,12 @@ public class TemplateMultiBranchProjectFactory extends MultiBranchProjectFactory
 
     @Extension public static class DescriptorImpl extends MultiBranchProjectFactoryDescriptor {
 
-        /* 
+        /*
             returning the factory will result in this option being
             selected by default in multibranch factory jobs (github org job)
         */
         @Override public MultiBranchProjectFactory newInstance() {
-            return null 
+            return null
         }
 
         @Override public String getDisplayName() {

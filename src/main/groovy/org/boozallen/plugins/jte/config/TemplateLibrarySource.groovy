@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.config
 
 import org.boozallen.plugins.jte.Utils
@@ -22,7 +21,7 @@ import org.kohsuke.stapler.DataBoundConstructor
 import org.kohsuke.stapler.DataBoundSetter
 import hudson.scm.SCM
 import jenkins.scm.api.SCMFileSystem
-import jenkins.scm.api.SCMFile 
+import jenkins.scm.api.SCMFile
 import hudson.Extension
 import hudson.model.AbstractDescribableImpl
 import hudson.model.Descriptor
@@ -34,7 +33,7 @@ public class TemplateLibrarySource extends AbstractDescribableImpl<TemplateLibra
 
     public SCM scm
     public String baseDir
-    public SCMFileSystem fs 
+    public SCMFileSystem fs
 
     @DataBoundConstructor public TemplateLibrarySource(){}
 
@@ -49,18 +48,18 @@ public class TemplateLibrarySource extends AbstractDescribableImpl<TemplateLibra
 
     Boolean hasLibrary(String libName){
         createFs()
-        if (!fs) return false 
+        if (!fs) return false
         SCMFile lib = fs.child(prefixBaseDir(libName))
         return lib.isDirectory()
     }
 
     public void loadLibrary(CpsScript script, String libName, Map libConfig){
         createFs()
-        if (!fs) return 
+        if (!fs) return
         Utils.getLogger().println "[JTE] Loading Library ${libName} from ${scm.getKey()}"
         SCMFile lib = fs.child(prefixBaseDir(libName))
-        lib.children().findAll{ 
-            it.getName().endsWith(".groovy") 
+        lib.children().findAll{
+            it.getName().endsWith(".groovy")
         }.each{ stepFile ->
             StepWrapper s = StepWrapper.createFromFile(stepFile, libName, script, libConfig)
             script.getBinding().setVariable(s.getName(), s)

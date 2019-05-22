@@ -13,20 +13,19 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
-package org.boozallen.plugins.jte.binding 
+package org.boozallen.plugins.jte.binding
 
 import org.boozallen.plugins.jte.config.*
 import org.boozallen.plugins.jte.Utils
 import org.jenkinsci.plugins.workflow.cps.CpsScript
-import hudson.Extension 
+import hudson.Extension
 import jenkins.model.Jenkins
 
 /*
-    represents a group of library steps to be called. 
+    represents a group of library steps to be called.
 */
 class Stage extends TemplatePrimitive {
-    CpsScript script 
+    CpsScript script
     String name
     ArrayList<String> steps
 
@@ -35,7 +34,7 @@ class Stage extends TemplatePrimitive {
     Stage(CpsScript script, String name, ArrayList<String> steps){
         this.script = script
         this.name = name
-        this.steps = steps 
+        this.steps = steps
     }
 
     void call(){
@@ -50,7 +49,7 @@ class Stage extends TemplatePrimitive {
                                 .loadClass("org.boozallen.plugins.jte.binding.Stage")
                                 .getResource("StageImpl.groovy")
                                 .text
-        Utils.getLogger().println "[JTE][Stage - ${name}]" 
+        Utils.getLogger().println "[JTE][Stage - ${name}]"
         Utils.parseScript(invoke, script.getBinding())(script, steps)
     }
 

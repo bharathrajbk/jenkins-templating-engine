@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.hooks
 
 import java.lang.annotation.Retention
@@ -21,11 +20,11 @@ import static java.lang.annotation.ElementType.*
 import static java.lang.annotation.RetentionPolicy.RUNTIME
 
 /*
-    Will get triggered at the end of a pipeline template 
+    Will get triggered at the end of a pipeline template
     execution regardless of build status
 
-    TODO: 
-        maybe enhance to also after every Stage? 
+    TODO:
+        maybe enhance to also after every Stage?
 */
 @Retention(RUNTIME)
 public @interface CleanUp{}

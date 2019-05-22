@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.binding
 
 import org.boozallen.plugins.jte.config.*
@@ -21,49 +20,49 @@ import org.boozallen.plugins.jte.hooks.*
 import org.boozallen.plugins.jte.Utils
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 import org.codehaus.groovy.runtime.InvokerHelper
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted 
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted
 import jenkins.model.Jenkins
-import jenkins.scm.api.SCMFile 
+import jenkins.scm.api.SCMFile
 /*
-    represents a library step. 
+    represents a library step.
 
-    this class serves as a wrapper class for the library step Script. 
-    It's necessary for two reasons: 
+    this class serves as a wrapper class for the library step Script.
+    It's necessary for two reasons:
     1. To give steps binding protection via TemplatePrimitive
     2. To provide a means to do LifeCycle Hooks before/after step execution
 */
 class StepWrapper extends TemplatePrimitive{
-    public static final String libraryConfigVariable = "config" 
+    public static final String libraryConfigVariable = "config"
     private Object impl
     private CpsScript script
     private String name
-    private String library 
+    private String library
 
     /*
-        need a call method defined on method missing so that 
-        CpsScript recognizes the StepWrapper as something it 
-        should execute in the binding. 
+        need a call method defined on method missing so that
+        CpsScript recognizes the StepWrapper as something it
+        should execute in the binding.
     */
     @Whitelisted
     def call(Object... args){
-        return invoke("call", args) 
+        return invoke("call", args)
     }
 
     /*
-        all other method calls go through CpsScript.getProperty to 
-        first retrieve the StepWrapper and then attempt to invoke a 
-        method on it. 
+        all other method calls go through CpsScript.getProperty to
+        first retrieve the StepWrapper and then attempt to invoke a
+        method on it.
     */
     @Whitelisted
     def methodMissing(String methodName, args){
-        return invoke(methodName, args)     
+        return invoke(methodName, args)
     }
 
     String getName(){ return name }
 
     /*
         pass method invocations on the wrapper to the underlying
-        step implementation script. 
+        step implementation script.
     */
     @Whitelisted
     def invoke(String methodName, Object... args){
@@ -94,21 +93,21 @@ class StepWrapper extends TemplatePrimitive{
     }
 
     static StepWrapper createFromFile(SCMFile file, String library, CpsScript script, Map libConfig){
-        String name = file.getName() - ".groovy" 
+        String name = file.getName() - ".groovy"
         String stepText = file.contentAsString()
         return createFromString(stepText, script, name, library, libConfig)
     }
 
     static StepWrapper createDefaultStep(CpsScript script, String name, Map stepConfig){
-        // create default step implementation Script 
+        // create default step implementation Script
         String defaultImpl = Jenkins.instance
                                     .pluginManager
                                     .uberClassLoader
                                     .loadClass("org.boozallen.plugins.jte.binding.StepWrapper")
                                     .getResource("defaultStepImplementation.groovy")
                                     .text
-        if (!stepConfig.name) stepConfig.name = name 
-        return createFromString(defaultImpl, script, name, "Default Step Implementation", stepConfig) 
+        if (!stepConfig.name) stepConfig.name = name
+        return createFromString(defaultImpl, script, name, "Default Step Implementation", stepConfig)
     }
 
     static StepWrapper createNullStep(String stepName, CpsScript script){
@@ -119,8 +118,7 @@ class StepWrapper extends TemplatePrimitive{
     static StepWrapper createFromString(String stepText, CpsScript script, String name, String library, Map libConfig){
         Script impl = Utils.parseScript(stepText, script.getBinding())
         impl.metaClass."get${StepWrapper.libraryConfigVariable.capitalize()}" << { return libConfig }
-        return new StepWrapper(script: script, impl: impl, name: name, library: library) 
+        return new StepWrapper(script: script, impl: impl, name: name, library: library)
     }
 
 }
-

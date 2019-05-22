@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.job
 
 import hudson.Extension
@@ -56,7 +55,7 @@ public class TemplateBranchProjectFactory extends WorkflowBranchProjectFactory {
         @Nonnull
         @Override
         public String getDisplayName() {
-            return "Jenkins Templating Engine" 
+            return "Jenkins Templating Engine"
         }
 
     }

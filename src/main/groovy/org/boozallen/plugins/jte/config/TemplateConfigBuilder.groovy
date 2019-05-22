@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.config
 
 import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted
@@ -61,9 +60,9 @@ abstract class TemplateConfigBuilder extends Script{
             templateConfig.merge << node_stack.join(".")
         } else if (name.equals("override") && value.equals(true)){
             templateConfig.override << node_stack.join(".")
-        } else if (object_stack.size()){ 
+        } else if (object_stack.size()){
             object_stack.last()[name] = value
-        } else { 
+        } else {
             templateConfig.config[name] = value
         }
     }

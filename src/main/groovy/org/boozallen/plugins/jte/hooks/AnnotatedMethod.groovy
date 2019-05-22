@@ -13,25 +13,24 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.hooks
 
 import org.boozallen.plugins.jte.binding.StepWrapper
 import org.boozallen.plugins.jte.Utils
 import org.codehaus.groovy.runtime.InvokerHelper
 import org.codehaus.groovy.runtime.InvokerInvocationException
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted 
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted
 
 class AnnotatedMethod implements Serializable{
-    String annotationName 
-    StepWrapper stepWrapper 
+    String annotationName
+    StepWrapper stepWrapper
     String methodName
 
     AnnotatedMethod(String annotationName, String methodName, StepWrapper stepWrapper){
         this.annotationName = annotationName
         this.methodName = methodName
-        this.stepWrapper = stepWrapper 
-    } 
+         this.stepWrapper = stepWrapper
+    }
 
     @Whitelisted
     void invoke(Map context){
@@ -43,4 +42,4 @@ class AnnotatedMethod implements Serializable{
             throw new InvokerInvocationException(x);
         }
     }
-}   
+}

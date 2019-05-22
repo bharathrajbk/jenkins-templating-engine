@@ -1,3 +1,18 @@
+/*
+   Copyright 2018 Booz Allen Hamilton
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 package org.boozallen.plugins.jte.utils
 
 import hudson.model.Action
@@ -59,7 +74,7 @@ class ScmSpec extends Specification {
     String cpsScript = """
                import org.jenkinsci.plugins.workflow.cps.*
                import org.jenkinsci.plugins.workflow.job.*
-              
+
 """
     @Shared
     String pipelineConfigPath = "pipeline_config.groovy"
@@ -69,7 +84,7 @@ class ScmSpec extends Specification {
     String pipelineConfigScript = """
         libraries{
             openshift{
-                url = "whatever" 
+                url = "whatever"
             }
         }
     """
@@ -83,7 +98,7 @@ class ScmSpec extends Specification {
                import org.jenkinsci.plugins.workflow.job.*
                import static  org.boozallen.plugins.jte.Utils.*
 
-            println getFileContents('pipeline_config.groovy', null, "template configuration file")               
+            println getFileContents('pipeline_config.groovy', null, "template configuration file")
 
 """
 
@@ -126,7 +141,7 @@ class ScmSpec extends Specification {
 
         scmWorkflowJob = groovyJenkinsRule.jenkins.createProject(WorkflowJob, "scmWorkflowJob");
         cpsScmFlowDefinition = new CpsScmFlowDefinition(scm, cpsScriptPath)
-        
+
         scmWorkflowJob.setDefinition(cpsScmFlowDefinition);
 
         stdWorkflowJob = groovyJenkinsRule.jenkins.createProject(WorkflowJob, "stdWorkflowJob");

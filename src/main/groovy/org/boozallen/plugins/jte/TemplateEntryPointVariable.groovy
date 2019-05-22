@@ -13,16 +13,15 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte
 
 import org.boozallen.plugins.jte.config.TemplateConfigBuilder
-import org.boozallen.plugins.jte.binding.* 
-import org.boozallen.plugins.jte.config.* 
-import org.boozallen.plugins.jte.hooks.* 
+import org.boozallen.plugins.jte.binding.*
+import org.boozallen.plugins.jte.config.*
+import org.boozallen.plugins.jte.hooks.*
 import jenkins.model.Jenkins
 import hudson.Extension
-import hudson.ExtensionList 
+import hudson.ExtensionList
 import org.jenkinsci.plugins.workflow.cps.GlobalVariable
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.AbstractWhitelist
@@ -47,23 +46,23 @@ import javax.annotation.Nonnull
         if (script.getBinding().hasVariable(getName())) {
             template = binding.getVariable(getName())
         } else {
-            // override script binding with JTE implementation 
+            // override script binding with JTE implementation
             script.setBinding(new TemplateBinding())
 
-            // set pipelineConfig object 
+            // set pipelineConfig object
             PipelineConfig pipelineConfig = new PipelineConfig()
 
             // aggregate pipeline configs
             aggregateTemplateConfigurations(pipelineConfig)
 
             // make accessible to libs if they need to access
-            // more than just their own library config block 
+            // more than just their own library config block
             script.getBinding().setVariable("pipelineConfig", pipelineConfig.getConfig().getConfig())
 
             // populate the template
-            initializeBinding(pipelineConfig, script) 
+            initializeBinding(pipelineConfig, script)
 
-            // parse entrypoint and return 
+            // parse entrypoint and return
             String entryPoint = Jenkins.instance
                                 .pluginManager
                                 .uberClassLoader
@@ -81,68 +80,68 @@ import javax.annotation.Nonnull
     void aggregateTemplateConfigurations(PipelineConfig pipelineConfig){
 
         List<GovernanceTier> tiers = GovernanceTier.getHierarchy()
-       
+
         //  we get the configs in ascending order of governance
         //  so reverse the list to get the highest precedence first
         tiers.reverse().each{ tier ->
             TemplateConfigObject config = tier.getConfig()
             if (config){
-                pipelineConfig.join(config) 
+                pipelineConfig.join(config)
             }
         }
 
-        // get job config if present 
+        // get job config if present
         String repoConfigFile = Utils.getFileContents(GovernanceTier.CONFIG_FILE, null, "Template Configuration File")
         if (repoConfigFile){
             TemplateConfigObject repoConfig = TemplateConfigDsl.parse(repoConfigFile)
             pipelineConfig.join(repoConfig)
         }
-        
+
     }
 
     void initializeBinding(PipelineConfig pipelineConfig, CpsScript script){
-        // get the pipeline configuration 
-        TemplateConfigObject config = pipelineConfig.getConfig() 
-        
+        // get the pipeline configuration
+        TemplateConfigObject config = pipelineConfig.getConfig()
+
         // get registered injectors
-        ExtensionList<TemplatePrimitiveInjector> injectors = TemplatePrimitiveInjector.all() 
-        
-        // do first pass at binding  
-        injectors.each{ injector -> 
+        ExtensionList<TemplatePrimitiveInjector> injectors = TemplatePrimitiveInjector.all()
+
+        // do first pass at binding
+        injectors.each{ injector ->
             injector.doInject(config, script)
         }
 
         // give injectors opportunity to plug
-        // holes in the template. 
+        // holes in the template.
         injectors.each{ injector ->
             injector.doPostInject(config, script)
         }
 
         /*
-            seal the binding.  
+            seal the binding.
             <? extends TemplatePrimitive>.throwPostLockException() will now be thrown
         */
-        script.getBinding().lock()   
+        script.getBinding().lock()
     }
 
 
-    @Extension public static class MiscWhitelist extends AbstractWhitelist {    
+    @Extension public static class MiscWhitelist extends AbstractWhitelist {
         @Override public boolean permitsMethod(Method method, Object receiver, Object[] args) {
-            return ( 
-                receiver in TemplateConfigBuilder || 
-                receiver in TemplatePrimitive || 
-                receiver in TemplateBinding || 
+            return (
+                receiver in TemplateConfigBuilder ||
+                receiver in TemplatePrimitive ||
+                receiver in TemplateBinding ||
                 receiver in TemplatePrimitiveInjector
             )
         }
 
         @Override public boolean permitsConstructor(Constructor<?> constructor, Object[] args){
-            return constructor.getDeclaringClass().equals(TemplateConfigBuilder) 
+            return constructor.getDeclaringClass().equals(TemplateConfigBuilder)
         }
 
         @Override public boolean permitsStaticMethod(Method method, Object[] args){
             return (
-                method.getDeclaringClass().equals(Utils) || 
+                method.getDeclaringClass().equals(Utils) ||
                 method.getDeclaringClass().equals(Hooks)
             )
         }

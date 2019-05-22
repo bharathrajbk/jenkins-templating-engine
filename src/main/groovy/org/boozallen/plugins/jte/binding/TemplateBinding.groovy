@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.binding
 
 import org.jenkinsci.plugins.workflow.cps.CpsThread
@@ -22,22 +21,22 @@ import org.codehaus.groovy.runtime.InvokerHelper
 
 class TemplateBinding extends Binding implements Serializable{
     public final String STEPS_VAR = "steps"
-    public Set<String> registry = new ArrayList() 
-    private Boolean locked = false 
+    public Set<String> registry = new ArrayList()
+    private Boolean locked = false
 
     TemplateBinding(){
         CpsThread c = CpsThread.current()
         if (c) setVariable(STEPS_VAR, new DSL(c.getExecution().getOwner()))
     }
-    
+
     public void lock(){ locked = true }
 
     @Override
     public void setVariable(String name, Object value) {
         /*
-            Library steps can access their config through 
-            a variable called "config".  as such, reject 
-            attempts to override this in the binding. 
+            Library steps can access their config through
+            a variable called "config".  as such, reject
+            attempts to override this in the binding.
         */
         if (name.equals(StepWrapper.libraryConfigVariable)){
             throw new TemplateException("Cannot set ${StepWrapper.libraryConfigVariable}. Reserved for use by library steps.")
@@ -48,8 +47,8 @@ class TemplateBinding extends Binding implements Serializable{
                 variables.get(name).throwPostLockException()
             }
             else{
-                variables.get(name).throwPreLockException() 
-            } 
+                variables.get(name).throwPreLockException()
+            }
         }
         if (value in TemplatePrimitive) registry << name
         super.setVariable(name, value)
@@ -76,7 +75,7 @@ class TemplateBinding extends Binding implements Serializable{
             return getVariable(stepName) instanceof StepWrapper
         } else{
             return false
-        } 
+        }
     }
 
     public StepWrapper getStep(String stepName){

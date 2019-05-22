@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.job
 
 import hudson.Extension
@@ -44,9 +43,9 @@ class TemplateFlowDefinition extends FlowDefinition {
             throw new IllegalStateException("inappropriate context")
         }
         FlowDurabilityHint hint = (exec instanceof Item) ? DurabilityHintProvider.suggestedFor((Item)exec) : GlobalDefaultFlowDurabilityLevel.getDefaultDurabilityHint()
-        
+
         /*
-            TODO: 
+            TODO:
                 make sandbox optional and debug why stepwrapper fails w/ sandboxing
         */
         return new CpsFlowExecution("template()", true, handle, hint)

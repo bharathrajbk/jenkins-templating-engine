@@ -1,3 +1,18 @@
+/*
+   Copyright 2018 Booz Allen Hamilton
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 package org.boozallen.plugins.jte.binding
 
 import spock.lang.*
@@ -13,71 +28,71 @@ import org.jvnet.hudson.test.JenkinsRule
 import org.jvnet.hudson.test.WithoutJenkins
 
 class LibraryLoaderSpec extends Specification {
-    
+
     @Shared @ClassRule JenkinsRule jenkins = new JenkinsRule()
     CpsScript script = Mock()
-    PrintStream logger = Mock() 
+    PrintStream logger = Mock()
 
     def setup(){
         GroovySpy(Utils, global:true)
-        _ * Utils.getCurrentJob() >> jenkins.createProject(WorkflowJob) 
+        _ * Utils.getCurrentJob() >> jenkins.createProject(WorkflowJob)
         _ * Utils.getLogger() >> logger
     }
-    
+
     @WithoutJenkins
     def "missing library throws exception"(){
-        setup: 
+        setup:
             TemplateLibrarySource libSource = Mock{
-                hasLibrary("test_library") >> false 
+                hasLibrary("test_library") >> false
             }
 
             GovernanceTier tier = GroovyMock(global:true){
                 getLibrarySources() >> [ libSource ]
             }
             GovernanceTier.getHierarchy() >> [ tier ]
-          
-            // mock libraries to load 
+
+            // mock libraries to load
             TemplateConfigObject config = new TemplateConfigObject(config: [
                 libraries: [
                     test_library: [:]
                 ]
             ])
-        when: 
+        when:
             LibraryLoader.doInject(config, script)
-        then: 
+        then:
             TemplateConfigException ex = thrown()
             ex.message == "Library test_library Not Found."
     }
 
     @WithoutJenkins
     def "when library source has library, loadLibrary is called"(){
-        setup: 
+        setup:
             TemplateLibrarySource s = Mock{
-                hasLibrary("test_library") >> true 
+                hasLibrary("test_library") >> true
             }
             GovernanceTier tier = GroovyMock(global: true){
-                getLibrarySources() >> [ s ] 
+                getLibrarySources() >> [ s ]
             }
             GovernanceTier.getHierarchy() >>  [ tier ]
 
-            // mock libraries to load 
+            // mock libraries to load
             TemplateConfigObject config = new TemplateConfigObject(config: [
                 libraries: [
                     test_library: [:]
                 ]
             ])
 
-        when: 
+        when:
             LibraryLoader.doInject(config, script)
-        then: 
+        then:
             1 * s.loadLibrary(script, "test_library", [:])
     }
 
     @WithoutJenkins
     def "Libraries can be loaded across library sources in a governance tier"(){
-        setup: 
+        setup:
             TemplateLibrarySource s1 = Mock{
-                hasLibrary("libA") >> true 
+                hasLibrary("libA") >> true
             }
             TemplateLibrarySource s2 = Mock{
                 hasLibrary("libB") >> true
@@ -87,7 +102,7 @@ class LibraryLoaderSpec extends Specification {
             }
             GovernanceTier.getHierarchy() >> [ tier ]
 
-            // mock libraries to load 
+            // mock libraries to load
             TemplateConfigObject config = new TemplateConfigObject(config: [
                 libraries: [
                     libA: [:],
@@ -95,9 +110,9 @@ class LibraryLoaderSpec extends Specification {
                 ]
             ])
 
-        when: 
+        when:
             LibraryLoader.doInject(config, script)
-        then: 
+        then:
             1 * s1.loadLibrary(script, "libA", [:])
             0 * s1.loadLibrary(script, "libB", [:])
             1 * s2.loadLibrary(script, "libB", [:])
@@ -106,12 +121,12 @@ class LibraryLoaderSpec extends Specification {
 
     @WithoutJenkins
     def "Libraries can be loaded across library sources in different governance tiers"(){
-        setup: 
+        setup:
             TemplateLibrarySource s1 = Mock{
-                hasLibrary("libA") >> true 
+                hasLibrary("libA") >> true
             }
             TemplateLibrarySource s2 = Mock{
-                hasLibrary("libB") >> true 
+                hasLibrary("libB") >> true
             }
             GovernanceTier tier1 = Mock{
                 getLibrarySources() >> [ s1 ]
@@ -121,16 +136,16 @@ class LibraryLoaderSpec extends Specification {
             }
             GovernanceTier.getHierarchy() >> [ tier1, tier2 ]
 
-            // mock libraries to load 
+            // mock libraries to load
             TemplateConfigObject config = new TemplateConfigObject(config: [
                 libraries: [
                     libA: [:],
                     libB: [:]
                 ]
             ])
-        when: 
+        when:
             LibraryLoader.doInject(config, script)
-        then: 
+        then:
             1 * s1.loadLibrary(script, "libA", [:])
             0 * s1.loadLibrary(script, "libB", [:])
             1 * s2.loadLibrary(script, "libB", [:])
@@ -139,12 +154,12 @@ class LibraryLoaderSpec extends Specification {
 
     @WithoutJenkins
     def "library on more granular governance tier gets loaded"(){
-        setup: 
+        setup:
              TemplateLibrarySource s1 = Mock{
-                hasLibrary("libA") >> true 
+                hasLibrary("libA") >> true
             }
             TemplateLibrarySource s2 = Mock{
-                hasLibrary("libA") >> true 
+                hasLibrary("libA") >> true
             }
             GovernanceTier tier1 = Mock{
                 getLibrarySources() >> [ s1 ]
@@ -154,37 +169,37 @@ class LibraryLoaderSpec extends Specification {
             }
             GovernanceTier.getHierarchy() >> [ tier1, tier2 ]
 
-            // mock libraries to load 
+            // mock libraries to load
             TemplateConfigObject config = new TemplateConfigObject(config: [
                 libraries: [
                     libA: [:]
                 ]
             ])
 
-        when: 
+        when:
             LibraryLoader.doInject(config, script)
-        then: 
+        then:
             1 * s1.loadLibrary(script, "libA", [:])
-            0 * s2.loadLibrary(script, "libA", [:])        
+            0 * s2.loadLibrary(script, "libA", [:])
     }
 
     @WithoutJenkins
     def "library loader correctly passes step config"(){
-        setup: 
+        setup:
             TemplateLibrarySource libSource = Mock{
-                hasLibrary("libA") >> true 
-                hasLibrary("libB") >> true 
+                hasLibrary("libA") >> true
+                hasLibrary("libB") >> true
             }
             GovernanceTier tier = GroovyMock(global:true){
                 getLibrarySources() >> [ libSource ]
             }
             GovernanceTier.getHierarchy() >> [ tier ]
 
-            // mock libraries to load 
+            // mock libraries to load
             TemplateConfigObject config = new TemplateConfigObject(config: [
                 libraries: [
                     libA: [
-                        fieldA: "A" 
+                        fieldA: "A"
                     ],
                     libB: [
                         fieldB: "B"
@@ -192,9 +207,9 @@ class LibraryLoaderSpec extends Specification {
                 ]
             ])
 
-        when: 
+        when:
             LibraryLoader.doInject(config, script)
-        then: 
+        then:
             1 * libSource.loadLibrary(script, "libA", [fieldA: "A"])
             1 * libSource.loadLibrary(script, "libB", [fieldB: "B"])
     }
@@ -203,19 +218,19 @@ class LibraryLoaderSpec extends Specification {
     def "steps configured via configuration file get loaded as default step implementation"(){
         setup:
             TemplateBinding binding = Mock()
-            script.getBinding() >> binding 
+            script.getBinding() >> binding
             StepWrapper s = GroovyMock(StepWrapper, global: true)
-            StepWrapper.createDefaultStep(script, "test_step", [:]) >> s 
-            
+            StepWrapper.createDefaultStep(script, "test_step", [:]) >> s
+
             TemplateConfigObject config = new TemplateConfigObject(config: [
                 steps: [
                     test_step: [:]
                 ]
             ])
-        when: 
+        when:
             LibraryLoader.doInject(config, script)
-            LibraryLoader.doPostInject(config, script) 
-        then: 
+            LibraryLoader.doPostInject(config, script)
+        then:
             1 * binding.setVariable("test_step", s)
             1 * logger.println("[JTE] Creating step test_step from the default step implementation.")
     }
@@ -224,19 +239,19 @@ class LibraryLoaderSpec extends Specification {
     def "warning issued when configured steps conflict with loaded library"(){
         setup:
             TemplateBinding binding = Mock{
-                hasStep("test_step") >> true 
+                hasStep("test_step") >> true
                 getStep("test_step") >> new StepWrapper(library: "libA")
             }
-            script.getBinding() >> binding 
+            script.getBinding() >> binding
             TemplateConfigObject config = new TemplateConfigObject(config: [
                 steps: [
                     test_step: [:]
                 ]
             ])
-        when: 
+        when:
             LibraryLoader.doInject(config, script)
-            LibraryLoader.doPostInject(config, script) 
-        then: 
+            LibraryLoader.doPostInject(config, script)
+        then:
             1 * logger.println("[JTE] Warning: Configured step test_step ignored. Loaded by the libA Library.")
             0 * binding.setVariable(_ , _)
     }
@@ -244,22 +259,22 @@ class LibraryLoaderSpec extends Specification {
     @WithoutJenkins
     def "template methods not implemented are Null Step"(){
         setup:
-            Set<String> registry = new ArrayList() 
+            Set<String> registry = new ArrayList()
             TemplateBinding binding = Mock(){
                 setVariable(_, _) >> { args ->
                     registry << args[0]
                 }
-                hasStep(_) >> { String stepName -> 
+                hasStep(_) >> { String stepName ->
                     stepName in registry
                 }
-                getProperty("registry") >> registry 
+                getProperty("registry") >> registry
             }
-            script.getBinding() >> binding 
+            script.getBinding() >> binding
             StepWrapper s = Mock()
             StepWrapper s2 = GroovyMock(global: true)
-            StepWrapper.createDefaultStep(script, "test_step1", [:]) >> s 
-            StepWrapper.createNullStep("test_step2", script) >> s2 
-    
+            StepWrapper.createDefaultStep(script, "test_step1", [:]) >> s
+            StepWrapper.createNullStep("test_step2", script) >> s2
+
             TemplateConfigObject config = new TemplateConfigObject(config: [
                 steps: [
                     test_step1: [:]
@@ -269,10 +284,10 @@ class LibraryLoaderSpec extends Specification {
                     test_step2: [:]
                 ]
             ])
-        when: 
+        when:
             LibraryLoader.doInject(config, script)
-            LibraryLoader.doPostInject(config, script) 
-        then: 
+            LibraryLoader.doPostInject(config, script)
+        then:
             1 * StepWrapper.createDefaultStep(script, "test_step1", [:])
             1 * StepWrapper.createNullStep("test_step2", script)
             0 * StepWrapper.createNullStep("test_step1", script)

@@ -13,21 +13,20 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.binding
 
 import org.boozallen.plugins.jte.config.TemplateConfigObject
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 import hudson.ExtensionPoint
-import hudson.ExtensionList 
-import jenkins.model.Jenkins 
+import hudson.ExtensionList
+import jenkins.model.Jenkins
 
 abstract class TemplatePrimitiveInjector implements ExtensionPoint{
     // Optional. delegate injecting template primitives into the binding to the specific
-    // implementations of TemplatePrimitive 
+    // implementations of TemplatePrimitive
     static void doInject(TemplateConfigObject config, CpsScript script){}
 
-    // Optional. do post processing of the config and binding. 
+    // Optional. do post processing of the config and binding.
     static void doPostInject(TemplateConfigObject config, CpsScript script){}
 
     // used to get all loaders

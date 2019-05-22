@@ -13,18 +13,3 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package org.boozallen.plugins.jte.binding
-
-/*
-    A base class for objects that will be stored in the
-    script binding.  Extending this base class will protect
-    these objects from being overridden during initialization,
-    by library developers, or by pipeline templates.
-*/
-abstract class TemplatePrimitive implements Serializable{
-    // gets called during template initialization
-    abstract void throwPreLockException()
-
-    //gets called after template initialization
-    abstract void throwPostLockException()
-}

@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.config
 
 import hudson.Extension
@@ -23,21 +22,21 @@ import com.cloudbees.hudson.plugins.folder.AbstractFolderPropertyDescriptor
 import org.kohsuke.stapler.DataBoundConstructor
 
 /*
-    Adds a folder property to store the Governance Tiers via the 
+    Adds a folder property to store the Governance Tiers via the
     job hierarchy
 */
 public class TemplateConfigFolderProperty extends AbstractFolderProperty<AbstractFolder<?>> {
-    private GovernanceTier tier 
+    private GovernanceTier tier
 
     @DataBoundConstructor public TemplateConfigFolderProperty(GovernanceTier tier){
-        this.tier = tier 
+        this.tier = tier
     }
 
     public GovernanceTier getTier(){
-        return tier 
+        return tier
     }
 
-    @Extension 
+    @Extension
     public final static class DescriptorImpl extends AbstractFolderPropertyDescriptor {
 
         @Override

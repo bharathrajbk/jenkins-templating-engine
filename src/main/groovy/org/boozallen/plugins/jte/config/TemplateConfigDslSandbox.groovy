@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.config
 
 import org.kohsuke.groovy.sandbox.GroovyInterceptor
@@ -21,10 +20,10 @@ import org.kohsuke.groovy.sandbox.GroovyInterceptor.Invoker
 
 /*
   our sandbox.  just block all the things except the creation of
-  the TemplateConfigBuilder base class and methods associated with that. 
+  the TemplateConfigBuilder base class and methods associated with that.
 
   The sandbox is having trouble recognizing the receiver as type TemplateConfigBuilder
-  so backed off to checking if it's a Script object. 
+  so backed off to checking if it's a Script object.
 */
 class TemplateConfigDslSandbox extends GroovyInterceptor {
   @Override
@@ -51,7 +50,7 @@ class TemplateConfigDslSandbox extends GroovyInterceptor {
       args -> ${args}
     """)
   }
-  
+
   @Override
   public Object onNewInstance(Invoker invoker, Class receiver, Object... args) throws Throwable {
     if (!(receiver in TemplateConfigBuilder)){
@@ -75,7 +74,7 @@ class TemplateConfigDslSandbox extends GroovyInterceptor {
       """)
     }
   }
-  
+
   @Override
   public Object onSuperCall(Invoker invoker, Class senderType, Object receiver, String method, Object... args) throws Throwable {
     throw new SecurityException("""
@@ -145,7 +144,7 @@ class TemplateConfigDslSandbox extends GroovyInterceptor {
       index -> ${index}
     """)
   }
-  
+
   @Override
   public Object onSetArray(Invoker invoker, Object receiver, Object index, Object value) throws Throwable {
     throw new SecurityException("""

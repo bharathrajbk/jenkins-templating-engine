@@ -13,7 +13,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 package org.boozallen.plugins.jte.config
 
 import org.boozallen.plugins.jte.Utils
@@ -23,7 +22,7 @@ import hudson.model.Descriptor.FormException
 import org.kohsuke.stapler.DataBoundConstructor
 import hudson.scm.SCM
 import hudson.Extension
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted 
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted
 import net.sf.json.JSONObject
 import org.kohsuke.stapler.StaplerRequest
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
@@ -33,13 +32,13 @@ import hudson.scm.NullSCM
 import hudson.Util
 
 public class GovernanceTier extends AbstractDescribableImpl<GovernanceTier> implements Serializable{
-    
+
     static final String CONFIG_FILE = "pipeline_config.groovy"
     static final String PIPELINE_TEMPLATE_DIRECTORY = "pipeline_templates"
 
     String baseDir
-    SCM scm 
-    List<TemplateLibrarySource> librarySources = new ArrayList() 
+    SCM scm
+    List<TemplateLibrarySource> librarySources = new ArrayList()
 
     @DataBoundConstructor public GovernanceTier(SCM scm, String baseDir, List<TemplateLibrarySource> librarySources){
         this.scm = scm
@@ -53,9 +52,8 @@ public class GovernanceTier extends AbstractDescribableImpl<GovernanceTier> impl
 
     @Whitelisted
     public TemplateConfigObject getConfig() throws Exception{
-        TemplateConfigObject configObject 
-        if (scm && !(scm instanceof NullSCM)){
-            String configFile = Utils.getFileContents("${baseDir ? "${baseDir}/" : ""}${GovernanceTier.CONFIG_FILE}", scm, "Template Configuration File")
+        TemplateConfigObject configObject
+        if (scm && !(scm instanceof NullSCM)){String configFile = Utils.getFileContents("${baseDir ? "${baseDir}/" : ""}${GovernanceTier.CONFIG_FILE}", scm, "Template Configuration File")
             if (configFile) configObject = TemplateConfigDsl.parse(configFile)
         }
         return configObject
@@ -63,20 +61,20 @@ public class GovernanceTier extends AbstractDescribableImpl<GovernanceTier> impl
 
     @Whitelisted
     public String getJenkinsfile() throws Exception {
-        String jenkinsfile 
+        String jenkinsfile
         if(scm && !(scm instanceof NullSCM)){
             jenkinsfile = Utils.getFileContents("${baseDir ? "${baseDir}/" : ""}Jenkinsfile", scm, "Template")
         }
-        return jenkinsfile 
+        return jenkinsfile
     }
 
     @Whitelisted
     public String getTemplate(String template) throws Exception {
-        String pipelineTemplate 
+        String pipelineTemplate
         if(scm && !(scm instanceof NullSCM)){
             pipelineTemplate = Utils.getFileContents("${baseDir ? "${baseDir}/" : ""}${GovernanceTier.PIPELINE_TEMPLATE_DIRECTORY}/${template}", scm, "Pipeline Template")
-        } 
-        return pipelineTemplate 
+        }
+        return pipelineTemplate
     }
 
 
@@ -87,11 +85,11 @@ public class GovernanceTier extends AbstractDescribableImpl<GovernanceTier> impl
     */
     static List<GovernanceTier> getHierarchy(){
         List<GovernanceTier> h = new ArrayList()
-        
-        // recurse through job hierarchy and get template configs 
-        WorkflowJob job = Utils.getCurrentJob() 
+
+        // recurse through job hierarchy and get template configs
+        WorkflowJob job = Utils.getCurrentJob()
         ItemGroup<?> parent = job.getParent()
-        
+
         while(parent instanceof AbstractFolder){
             GovernanceTier tier = parent.getProperties().get(TemplateConfigFolderProperty)?.getTier()
             if (tier){
@@ -100,17 +98,17 @@ public class GovernanceTier extends AbstractDescribableImpl<GovernanceTier> impl
             parent = parent.getParent()
         }
 
-        // global config 
-        GovernanceTier tier = TemplateGlobalConfig.get().getTier() 
+        // global config
+        GovernanceTier tier = TemplateGlobalConfig.get().getTier()
         if (tier){
-            h.push(tier) 
+            h.push(tier)
         }
         return h
     }
 
-    
+
     @Extension public final static class DescriptorImpl extends Descriptor<GovernanceTier> {
-        
+
         @Override public GovernanceTier newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             GovernanceTier tier = (GovernanceTier) super.newInstance(req, formData);
             return tier.librarySources?.isEmpty() ? null : tier

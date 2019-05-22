@@ -13,12 +13,11 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
-package org.boozallen.plugins.jte.binding 
+package org.boozallen.plugins.jte.binding
 
 import org.boozallen.plugins.jte.config.TemplateConfigObject
 import org.jenkinsci.plugins.workflow.cps.CpsScript
-import hudson.Extension 
+import hudson.Extension
 
 /*
     represents a protected variable in the jenkinsfile
@@ -33,8 +32,8 @@ class Keyword extends TemplatePrimitive{
         return value
     }
 
-    Keyword(String var_name, Object value){ 
-        this.var_name = var_name 
+    Keyword(String var_name, Object value){
+        this.var_name = var_name
         this.value = value
     }
 
